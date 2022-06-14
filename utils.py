@@ -11,6 +11,7 @@ from rasterio.warp import (
     reproject,
     Resampling,
 )
+from subprocess import call
 from rasterio.merge import merge
 from shapely.geometry import Polygon
 
@@ -287,3 +288,14 @@ def get_tiles(aoi_path, sentinel_tiles_path):
     date_tile_info.crs = aoi_file.crs
     
     return date_tile_info
+
+
+def merge_tiles(paths, out_raster_path='test.tif'):
+    print(f'Start merging to {out_raster_path}')
+    start_time = time.time()
+    listToStr = ' '.join([str(elem) for elem in paths])
+    call(' '.join(["gdalwarp --config GDAL_CACHEMAX 3000 -wm 3000 -t_srs EPSG:3857", listToStr, str(out_raster_path)]),
+                shell=True)
+
+    print(f'{time.time() - start_time} seconds for merging {len(paths)} images in to {out_raster_path}')
+    return out_raster_path
