@@ -178,7 +178,7 @@ def exclude_classes(dataframe, column, classes=[], txt_file=None, verbose=False)
     return dataframe
 
 
-def crop_raster(raster_path, aoi_path, out_raster_name=None):
+def crop_raster(raster_path, aoi_path, out_raster_name=None, additional_meta=None):
     aoi = gpd.read_file(aoi_path)
     with rasterio.open(raster_path) as tile:
         meta = tile.meta
@@ -198,6 +198,8 @@ def crop_raster(raster_path, aoi_path, out_raster_name=None):
     meta["transform"] = region_tfs
     meta["nodata"] = 0
     meta["driver"] = "GTiff"
+    if additional_meta is not None:
+        meta.update(additional_meta)
 
     with rasterio.open(out_raster_name, "w", **meta) as dst:
         for band in range(meta['count']):
