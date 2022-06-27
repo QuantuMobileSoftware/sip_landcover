@@ -178,7 +178,7 @@ def exclude_classes(dataframe, column, classes=[], txt_file=None, verbose=False)
     return dataframe
 
 
-def crop_raster(raster_path, aoi_path, out_raster_name=None):
+def crop_raster(raster_path, aoi_path, out_raster_name=None, additional_meta=None):
     aoi = gpd.read_file(aoi_path)
     with rasterio.open(raster_path) as tile:
         meta = tile.meta
@@ -198,6 +198,8 @@ def crop_raster(raster_path, aoi_path, out_raster_name=None):
     meta["transform"] = region_tfs
     meta["nodata"] = 0
     meta["driver"] = "GTiff"
+    if additional_meta is not None:
+        meta.update(additional_meta)
 
     with rasterio.open(out_raster_name, "w", **meta) as dst:
         for band in range(meta['count']):
@@ -298,4 +300,51 @@ def merge_tiles(paths, out_raster_path='test.tif'):
                 shell=True)
 
     print(f'{time.time() - start_time} seconds for merging {len(paths)} images in to {out_raster_path}')
+    return out_raster_path
+
+
+def stitch_tiles(paths, out_raster_path='test.tif'):
+    tiles = []
+    tmp_files = []
+    
+    for i, path in enumerate(paths):
+        if i == 0:
+            file = rasterio.open(path)
+            meta, crs = file.meta, file.crs
+        else:
+            tmp_path = path.replace(
+                '.jp2', '_tmp.jp2').replace('.tif', '_tmp.tif')
+            crs_transformed = transform_crs(path, tmp_path, 
+                                            dst_crs=crs, 
+                                            resolution=None)
+            tmp_files.append(crs_transformed)
+            file = rasterio.open(crs_transformed)
+        tiles.append(file)
+            
+    tile_arr, transform = merge(tiles, method='last')
+    
+    meta.update({"driver": "GTiff",
+                 "height": tile_arr.shape[1],
+                 "width": tile_arr.shape[2],
+                 "transform": transform,
+                 "crs": crs})
+    
+    if '.jp2' in out_raster_path:
+        out_raster_path = out_raster_path.replace('.jp2', '_merged.tif')
+    else:
+        out_raster_path = out_raster_path.replace('.tif', '_merged.tif')
+    print(f'saved raster {out_raster_path}')
+
+    for tile in tiles:
+        tile.close()
+        
+    for tmp_file in tmp_files:
+        try:
+            os.remove(tmp_file)
+        except FileNotFoundError:
+            print(f'Tile {tmp_file} was removed or renamed, skipping')
+        
+    with rasterio.open(out_raster_path, "w", **meta) as dst:
+        dst.write(tile_arr)
+    
     return out_raster_path
