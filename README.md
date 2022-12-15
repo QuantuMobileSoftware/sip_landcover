@@ -24,7 +24,7 @@ docker run \
     -e "OUTPUT_FOLDER=/output" \
     -v `pwd`/data/SENTINEL2_CACHE:/input/SENTINEL2_CACHE \
     -v `pwd`/data/results:/output \
-    registry.quantumobile.co/sip_landcover:0.0.1-dev
+    quantumobile/sip_landcover:0.0.1-dev
 ```
 ## How to add model to SIP
 ____
@@ -32,7 +32,7 @@ ____
 1. Open Admin page, `localhost:9000/admin/`
 2. In AOI block select `Components` and click on `+Add`
     * Add <b>Component name</b>: `Add your name`
-    * Add <b>Image</b>: `registry.quantumobile.co/sip_landcover:0.0.1-dev`
+    * Add <b>Image</b>: `quantumobile/sip_landcover:0.0.1-dev`
     * Select <b>Run validation</b>
     * Select <b>Validation succeeded</b>
     * Select <b>Start and end dates are required</b>
