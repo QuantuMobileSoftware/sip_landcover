@@ -3,15 +3,15 @@ This is a test component
 
 ### Build image
 
-`docker build -t registry.quantumobile.co/sip_landcover:0.0.1-dev .`
+`docker build -t quantumobile/sip_landcover:0.0.1-dev .`
 
 ### Pull image
 
-`docker pull registry.quantumobile.co/sip_landcover:0.0.1-dev`
+`docker pull quantumobile/sip_landcover:0.0.1-dev`
 
 ### Push to registry
 
-`docker push registry.quantumobile.co/sip_landcover:0.0.1-dev`
+`docker push quantumobile/sip_landcover:0.0.1-dev`
 
 ### Docker run command
 
