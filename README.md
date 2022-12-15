@@ -1,17 +1,17 @@
 # SIP LANDCOVER
-This is a test component
+Landcover represent spatial information on different types (classes) of physical coverage of the Earth's surface
 
 ### Build image
 
-`docker build -t quantumobile/sip_landcover:0.0.1-dev .`
+`docker build -t quantumobile/sip_landcover .`
 
 ### Pull image
 
-`docker pull quantumobile/sip_landcover:0.0.1-dev`
+`docker pull quantumobile/sip_landcover`
 
 ### Push to registry
 
-`docker push quantumobile/sip_landcover:0.0.1-dev`
+`docker push quantumobile/sip_landcover`
 
 ### Docker run command
 
@@ -24,7 +24,7 @@ docker run \
     -e "OUTPUT_FOLDER=/output" \
     -v `pwd`/data/SENTINEL2_CACHE:/input/SENTINEL2_CACHE \
     -v `pwd`/data/results:/output \
-    quantumobile/sip_landcover:0.0.1-dev
+    quantumobile/sip_landcover
 ```
 ## How to add model to SIP
 ____
@@ -32,7 +32,7 @@ ____
 1. Open Admin page, `localhost:9000/admin/`
 2. In AOI block select `Components` and click on `+Add`
     * Add <b>Component name</b>: `Add your name`
-    * Add <b>Image</b>: `quantumobile/sip_landcover:0.0.1-dev`
+    * Add <b>Image</b>: `quantumobile/sip_landcover`
     * Select <b>Run validation</b>
     * Select <b>Validation succeeded</b>
     * Select <b>Start and end dates are required</b>
