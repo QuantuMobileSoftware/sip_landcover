@@ -33,11 +33,8 @@ ____
 2. In AOI block select `Components` and click on `+Add`
     * Add <b>Component name</b>: `Add your name`
     * Add <b>Image</b>: `quantumobile/sip_landcover`
-    * Select <b>Run validation</b>
-    * Select <b>Validation succeeded</b>
-    * Select <b>Start and end dates are required</b>
-    
-        <i>note: `Sentinel Google API key` should be `false`</i>
+    * Select <b>Sentinel Google API key is required</b>
+    * Deselect <b>GPU is needed for a component to run</b>
 3. <b>SAVE</b>
 4. Update page with `SIP app` <i>(localhost:3000)</i>
 5. Select `Area` or `Field` on the map and save it
