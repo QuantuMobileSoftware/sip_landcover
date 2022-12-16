@@ -17,10 +17,12 @@ from shapely.geometry import Polygon
 
 
 def sigma_scale(img_array, z_score=4):
-    mu, sigma = img_array[img_array != 0].mean(), img_array[img_array != 0].std()
+    mu, sigma = img_array[img_array != 0].mean(
+    ), img_array[img_array != 0].std()
 
     img_array = np.where(
-        (img_array >= mu - (z_score * sigma)) & (img_array <= mu + (z_score * sigma)),
+        (img_array >= mu - (z_score * sigma)
+         ) & (img_array <= mu + (z_score * sigma)),
         img_array,
         0,
     )
@@ -123,7 +125,8 @@ def transform_crs(data_path, save_path, dst_crs="EPSG:4326", resolution=(10, 10)
             )
         kwargs = src.meta.copy()
         kwargs.update(
-            {"crs": dst_crs, "transform": transform, "width": width, "height": height}
+            {"crs": dst_crs, "transform": transform,
+                "width": width, "height": height}
         )
         with rasterio.open(save_path, "w", **kwargs) as dst:
             for i in range(1, src.count + 1):
@@ -207,10 +210,11 @@ def crop_raster(raster_path, aoi_path, out_raster_name=None, additional_meta=Non
 
     return out_raster_name
 
+
 def stitch_tiles(paths, out_raster_path='test.tif'):
     tiles = []
     tmp_files = []
-    
+
     for i, path in enumerate(paths):
         if i == 0:
             file = rasterio.open(path)
@@ -218,22 +222,21 @@ def stitch_tiles(paths, out_raster_path='test.tif'):
         else:
             tmp_path = path.replace(
                 '.jp2', '_tmp.jp2').replace('.tif', '_tmp.tif')
-            crs_transformed = transform_crs(path, tmp_path, 
-                                            dst_crs=crs, 
+            crs_transformed = transform_crs(path, tmp_path,
+                                            dst_crs=crs,
                                             resolution=None)
             tmp_files.append(crs_transformed)
             file = rasterio.open(crs_transformed)
         tiles.append(file)
-            
+
     tile_arr, transform = merge(tiles, method='last')
-    
-    
+
     meta.update({"driver": "GTiff",
                  "height": tile_arr.shape[1],
                  "width": tile_arr.shape[2],
                  "transform": transform,
                  "crs": crs})
-    
+
     if '.jp2' in out_raster_path:
         out_raster_path = out_raster_path.replace('.jp2', '_merged.tif')
     else:
@@ -242,17 +245,18 @@ def stitch_tiles(paths, out_raster_path='test.tif'):
 
     for tile in tiles:
         tile.close()
-        
+
     for tmp_file in tmp_files:
         try:
             os.remove(tmp_file)
         except FileNotFoundError:
             print(f'Tile {tmp_file} was removed or renamed, skipping')
-        
+
     with rasterio.open(out_raster_path, "w", **meta) as dst:
         dst.write(tile_arr)
-    
+
     return out_raster_path
+
 
 def get_tiles(aoi_path, sentinel_tiles_path):
     '''
@@ -273,7 +277,8 @@ def get_tiles(aoi_path, sentinel_tiles_path):
     rest_aoi = aoi_file.copy()
 
     while rest_aoi.area.sum() > 0:
-        res_intersection = gpd.overlay(rest_aoi, sentinel_tiles, how="intersection")
+        res_intersection = gpd.overlay(
+            rest_aoi, sentinel_tiles, how="intersection")
         biggest_area_idx = res_intersection.area.argmax()
 
         tileID = res_intersection.loc[biggest_area_idx, "Name"]
@@ -283,12 +288,13 @@ def get_tiles(aoi_path, sentinel_tiles_path):
         best_interseciton["geometry"].append(this_aoi)
 
         biggest_intersection = sentinel_tiles.loc[[tileID]]
-        rest_aoi = gpd.overlay(rest_aoi, biggest_intersection, how="difference")
+        rest_aoi = gpd.overlay(
+            rest_aoi, biggest_intersection, how="difference")
         sentinel_tiles = sentinel_tiles.loc[res_intersection["Name"]]
 
     date_tile_info = gpd.GeoDataFrame(best_interseciton)
     date_tile_info.crs = aoi_file.crs
-    
+
     return date_tile_info
 
 
@@ -297,7 +303,54 @@ def merge_tiles(paths, out_raster_path='test.tif'):
     start_time = time.time()
     listToStr = ' '.join([str(elem) for elem in paths])
     call(' '.join(["gdalwarp --config GDAL_CACHEMAX 3000 -wm 3000 -t_srs EPSG:3857", listToStr, str(out_raster_path)]),
-                shell=True)
+         shell=True)
 
     print(f'{time.time() - start_time} seconds for merging {len(paths)} images in to {out_raster_path}')
+    return out_raster_path
+
+
+def stitch_tiles(paths, out_raster_path='test.tif'):
+    tiles = []
+    tmp_files = []
+
+    for i, path in enumerate(paths):
+        if i == 0:
+            file = rasterio.open(path)
+            meta, crs = file.meta, file.crs
+        else:
+            tmp_path = path.replace(
+                '.jp2', '_tmp.jp2').replace('.tif', '_tmp.tif')
+            crs_transformed = transform_crs(path, tmp_path,
+                                            dst_crs=crs,
+                                            resolution=None)
+            tmp_files.append(crs_transformed)
+            file = rasterio.open(crs_transformed)
+        tiles.append(file)
+
+    tile_arr, transform = merge(tiles, method='last')
+
+    meta.update({"driver": "GTiff",
+                 "height": tile_arr.shape[1],
+                 "width": tile_arr.shape[2],
+                 "transform": transform,
+                 "crs": crs})
+
+    if '.jp2' in out_raster_path:
+        out_raster_path = out_raster_path.replace('.jp2', '_merged.tif')
+    else:
+        out_raster_path = out_raster_path.replace('.tif', '_merged.tif')
+    print(f'saved raster {out_raster_path}')
+
+    for tile in tiles:
+        tile.close()
+
+    for tmp_file in tmp_files:
+        try:
+            os.remove(tmp_file)
+        except FileNotFoundError:
+            print(f'Tile {tmp_file} was removed or renamed, skipping')
+
+    with rasterio.open(out_raster_path, "w", **meta) as dst:
+        dst.write(tile_arr)
+
     return out_raster_path

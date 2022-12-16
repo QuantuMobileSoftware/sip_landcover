@@ -1,37 +1,49 @@
-There is one file that should be present in the same folder: <a href="https://drive.google.com/file/d/17g0xML2n4Cyv7zyXkSkFqLhFQVBoh-gX/view?usp=sharing">sentinel2grid.geojson</a>
+# SIP LANDCOVER
+Landcover represent spatial information on different types (classes) of physical coverage of the Earth's surface
 
-# for adding landcover package to sip project:
+### Build image
 
-## Clone repository:
-```shell
-git clone https://github.com/QuantuMobileSoftware/sip_landcover landcover
-cd landcover
-git submodule update --init --recursive
+`docker build -t quantumobile/sip_landcover .`
+
+### Pull image
+
+`docker pull quantumobile/sip_landcover`
+
+### Push to registry
+
+`docker push quantumobile/sip_landcover`
+
+### Docker run command
+
 ```
-Repository require additional rights
-
-## for enabling nfs support 
-```shell
-sudo apt-get install cifs-utils
-sudo apt-get install nfs-common
+docker run \
+    -e "AOI=POLYGON ((-85.299088 40.339368, -85.332047 40.241477, -85.134979 40.229427, -85.157639 40.34146, -85.299088 40.339368))" \
+    -e "START_DATE=2016-05-01" \
+    -e "END_DATE=2023-06-30" \
+    -e "SENTINEL2_CACHE=/input/SENTINEL2_CACHE" \
+    -e "OUTPUT_FOLDER=/output" \
+    -v `pwd`/data/SENTINEL2_CACHE:/input/SENTINEL2_CACHE \
+    -v `pwd`/data/results:/output \
+    quantumobile/sip_landcover
 ```
+## How to add model to SIP
+____
 
-#get requirements from NFS server
-```shell
-sudo mount 192.168.1.58:/volume1/SIP /home/quantum/sip
+1. Open Admin page, `localhost:9000/admin/`
+2. In AOI block select `Components` and click on `+Add`
+    * Add <b>Component name</b>: `Add your name`
+    * Add <b>Image</b>: `quantumobile/sip_landcover`
+    * Select <b>Run validation</b>
+    * Select <b>Validation succeeded</b>
+    * Select <b>Start and end dates are required</b>
+    
+        <i>note: `Sentinel Google API key` should be `false`</i>
+3. <b>SAVE</b>
+4. Update page with `SIP app` <i>(localhost:3000)</i>
+5. Select `Area` or `Field` on the map and save it
+6. Drop-down menu on your `Area` or `Field` -> `View reports`
+7. `Create new`
+8. In `Select layers` choose your component, add additional params like <i>Year</i>, <i>Date range</i> and so on
+9. `Save changes`
 
-cp -r --remove-destination /home/quantum/sip/.prod_notebooks_requirements/landcover/Landcover/sentinel2grid.geojson data/notebooks/landcover/Landcover
-sudo umount /home/quantum/sip
-```
 
-## copy requirements from repository to jupyter folder
-```shell
-cp -r --remove-destination data/notebooks/landcover/Landcover/requirements.txt jupyter/landcover/requirements.txt
-```
-# Building images for prod
-after updating all files from git repository, go to project SIP root directory
-
-## for building common_pbdnn:latest
-```shell
-docker build -f ./jupyter/landcover/Dockerfile -t landcover:latest .
-```
