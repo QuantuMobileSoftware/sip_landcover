@@ -348,4 +348,4 @@ def stitch_tiles(paths, out_raster_path='test.tif'):
         dst.write(tile_arr)
     
     return out_raster_path
-    
+   
