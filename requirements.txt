@@ -1,4 +1,4 @@
-git+https://github.com/QuantuMobileSoftware/sentinel2tools.git@678d88c49e56779f64f71c9da382a90ef8907979
+git+https://github.com/QuantuMobileSoftware/sentinel2tools.git@bca7ff06c72411a4ada3886131f1b030cbd94e0b
 geopandas==0.8.1
 rasterio==1.1.8
 Rtree==0.9.4
