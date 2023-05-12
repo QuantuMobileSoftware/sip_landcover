@@ -9,9 +9,6 @@ RUN apt-get update && \
     libproj-dev \
     gdal-bin
 
-
-RUN pip install jupyter==1.0.0
-
 RUN mkdir /code
 WORKDIR /code
 COPY ./ .
