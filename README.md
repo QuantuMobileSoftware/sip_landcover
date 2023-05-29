@@ -1,6 +1,10 @@
 # SIP LANDCOVER
 Landcover represent spatial information on different types (classes) of physical coverage of the Earth's surface
 
+The source of landcover [link to the source]
+
+[link to the source]: https://www.arcgis.com/home/item.html?id=cfcb7609de5f478eb7666240902d4d3d
+
 ### Build image
 
 `docker build -t quantumobile/sip_landcover .`
